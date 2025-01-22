@@ -64,23 +64,23 @@ Follow these steps to set up and run the project locally:
 Once the server starts, open your web browser and go to http://localhost:3000 to view the project in action.
 
 ### Screenshots  
-_Add screenshots here to represent the project. Below are placeholders for reference:_  
 
-![Homepage Screenshot](path_to_homepage_screenshot.png)  
 *Homepage*  
+![Image](https://github.com/user-attachments/assets/4367fe3d-99ba-4905-a35e-a8cef695ecf9)
 
-![Music Player Screenshot](path_to_player_screenshot.png)  
 *Music Player*
+![Image](https://github.com/user-attachments/assets/3b044736-6779-4176-a617-c968af016973) 
+
 
 ---
 
-### Social Platforms  
-Follow us on:  
-- YouTube  
-- Instagram  
-- Facebook  
-- LinkedIn  
-- Twitter  
+### Our Other Social Platforms
+
+- ![Untitled design (9)](https://github.com/varun-FSDeveloper/BTreeFlight/assets/153975508/33ae95e1-c4d7-47d3-a160-90a6f060896b) Youtube - https://bit.ly/Youtubebtree
+- ![icon_logo](https://github.com/varun-FSDeveloper/BTreeFlight/assets/153975508/948141f8-8cdc-4ef1-9615-0fb06cd35574) Instagram - https://bit.ly/Instagrambtree 
+- ![Untitled design (10)](https://github.com/varun-FSDeveloper/BTreeFlight/assets/153975508/51189b66-5f75-43fc-a992-dca4805152a0) Facebook - https://bit.ly/btreefacebookpage 
+- ![Untitled design (11)](https://github.com/varun-FSDeveloper/BTreeFlight/assets/153975508/0177cf07-7034-41fb-a41c-e292b2eea000) LinkedIn - https://bit.ly/Linkedinbtree 
+- ![Untitled design (13)](https://github.com/varun-FSDeveloper/BTreeFlight/assets/153975508/81b02b10-6291-4aeb-8f14-d3f296f2698b) Twitter - https://bit.ly/Twitterbtree 
 
 
 
