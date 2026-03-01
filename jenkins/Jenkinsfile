@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         IMAGE_NAME = "bkkrish007/spotify-devops"
-        EC2_HOST   = "ubuntu@13.200.246.186"
+        EC2_HOST   = "ubuntu@15.207.18.219"
     }
 
     stages {
@@ -14,14 +14,16 @@ pipeline {
         stage('Install & Build (Node Container)') {
             agent {
                 docker {
-                    image 'node:20'   // Node 20 required by react-router
+                    image 'node:20'
                     args '-v /var/run/docker.sock:/var/run/docker.sock'
                 }
             }
             steps {
-                sh 'node -v'
-                sh 'npm install'
-                sh 'npm run build'
+                sh '''
+                node -v
+                npm install
+                npm run build
+                '''
             }
         }
 
@@ -64,14 +66,14 @@ pipeline {
         ============================== */
         stage('Deploy to EC2') {
             steps {
-                sh '''
-                ssh -o StrictHostKeyChecking=no $EC2_HOST << EOF
-                    docker stop spotify || true
-                    docker rm spotify || true
-                    docker pull $IMAGE_NAME:latest
-                    docker run -d -p 8081:80 --name spotify $IMAGE_NAME:latest
-                EOF
-                '''
+                sh """
+                ssh -o StrictHostKeyChecking=no ${EC2_HOST} "
+                    docker stop spotify || true &&
+                    docker rm spotify || true &&
+                    docker pull ${IMAGE_NAME}:latest &&
+                    docker run -d -p 8081:80 --name spotify ${IMAGE_NAME}:latest
+                "
+                """
             }
         }
     }
