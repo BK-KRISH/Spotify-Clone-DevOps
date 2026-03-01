@@ -66,14 +66,16 @@ pipeline {
         ============================== */
         stage('Deploy to EC2') {
             steps {
-                sh """
-                ssh -o StrictHostKeyChecking=no ${EC2_HOST} "
-                    docker stop spotify || true &&
-                    docker rm spotify || true &&
-                    docker pull ${IMAGE_NAME}:latest &&
-                    docker run -d -p 8081:80 --name spotify ${IMAGE_NAME}:latest
-                "
-                """
+                sshagent(['ec2-ssh-key']) {
+                    sh '''
+                    ssh -o StrictHostKeyChecking=no ubuntu@15.207.18.219 << EOF
+                        docker stop spotify || true
+                        docker rm spotify || true
+                        docker pull bkkrish007/spotify-devops:latest
+                        docker run -d -p 8081:80 --name spotify bkkrish007/spotify-devops:latest
+                    EOF
+                    '''
+                }
             }
         }
     }
