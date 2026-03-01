@@ -28,20 +28,10 @@ pipeline {
         }
 
         /* ==============================
-           BUILD DOCKER IMAGE
+           BUILD + PUSH (AMD64 IMAGE)
+           FIX FOR MAC M1/M2/M3
         ============================== */
-        stage('Build Docker Image') {
-            steps {
-                sh '''
-                docker build -t spotify-clone -f docker/Dockerfile .
-                '''
-            }
-        }
-
-        /* ==============================
-           LOGIN + PUSH DOCKERHUB
-        ============================== */
-        stage('Push to DockerHub') {
+        stage('Build & Push Docker Image') {
             steps {
                 withCredentials([usernamePassword(
                     credentialsId: 'dockerhub-creds',
@@ -50,10 +40,18 @@ pipeline {
                 )]) {
 
                     sh '''
+                    # Login DockerHub
                     echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
 
-                    docker tag spotify-clone $IMAGE_NAME:latest
-                    docker push $IMAGE_NAME:latest
+                    # Enable buildx (multi-arch builder)
+                    docker buildx create --use || true
+
+                    # Build image for EC2 architecture and push
+                    docker buildx build \
+                      --platform linux/amd64 \
+                      -t $IMAGE_NAME:latest \
+                      -f docker/Dockerfile \
+                      --push .
 
                     docker logout
                     '''
@@ -68,7 +66,7 @@ pipeline {
             steps {
                 sshagent(['ec2-ssh-key']) {
                     sh '''
-                    ssh -o StrictHostKeyChecking=no ubuntu@15.207.18.219 << EOF
+                    ssh -o StrictHostKeyChecking=no $EC2_HOST << 'EOF'
                         docker stop spotify || true
                         docker rm spotify || true
                         docker pull bkkrish007/spotify-devops:latest
