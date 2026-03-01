@@ -1,24 +1,12 @@
 pipeline {
-
-    agent {
-        docker {
-            image 'node:18'
-            args '-v /var/run/docker.sock:/var/run/docker.sock'
-        }
-    }
+    agent any
 
     environment {
-        IMAGE = "bkkrish007/spotify-devops"
-        EC2_HOST = "ubuntu@13.200.246.186"
+        IMAGE_NAME = "bkkrish007/spotify-devops"
+        EC2_IP = "13.200.246.186"
     }
 
     stages {
-
-        stage('Checkout Code') {
-            steps {
-                git 'https://github.com/BK-KRISH/Spotify-clone-devops.git'
-            }
-        }
 
         stage('Install Dependencies') {
             steps {
@@ -34,11 +22,11 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t $IMAGE:latest -f docker/Dockerfile .'
+                sh 'docker build -t $IMAGE_NAME:latest -f docker/Dockerfile .'
             }
         }
 
-        stage('Push Image to DockerHub') {
+        stage('Push to DockerHub') {
             steps {
                 withCredentials([usernamePassword(
                     credentialsId: 'dockerhub-creds',
@@ -47,20 +35,20 @@ pipeline {
                 )]) {
                     sh '''
                     echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
-                    docker push $IMAGE:latest
+                    docker push $IMAGE_NAME:latest
                     '''
                 }
             }
         }
 
-        stage('Deploy to AWS EC2') {
+        stage('Deploy to EC2') {
             steps {
                 sh '''
-                ssh -o StrictHostKeyChecking=no $EC2_HOST "
+                ssh -o StrictHostKeyChecking=no ubuntu@$EC2_IP "
                     docker stop spotify || true &&
                     docker rm spotify || true &&
-                    docker pull $IMAGE:latest &&
-                    docker run -d -p 8081:80 --name spotify $IMAGE:latest
+                    docker pull $IMAGE_NAME:latest &&
+                    docker run -d -p 8081:80 --name spotify $IMAGE_NAME:latest
                 "
                 '''
             }
