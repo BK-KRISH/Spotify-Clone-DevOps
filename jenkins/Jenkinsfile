@@ -31,17 +31,18 @@ pipeline {
             }
         }
 
-        stage('Deploy to AWS EC2') {
+        stage('Deploy to EC2') {
             steps {
                 sh '''
-                echo "Deploying to AWS EC2..."
-
-            ssh -o StrictHostKeyChecking=no ubuntu@13.200.246.186 '
-                docker rm -f spotify || true
-                docker run -d -p 8081:80 --name spotify spotify-clone
-            '
-            '''
-           }
+                ssh -o StrictHostKeyChecking=no ubuntu@13.200.246.186 "
+                docker stop spotify || true &&
+                docker rm spotify || true &&
+                docker pull bkkrish007/spotify-devops:latest &&
+                docker run -d -p 8081:80 --name spotify bkkrish007/spotify-devops:latest
+                "
+                '''
+            }
         }
+
     }
 }
