@@ -1,7 +1,24 @@
 pipeline {
-    agent any
+
+    agent {
+        docker {
+            image 'node:18'
+            args '-v /var/run/docker.sock:/var/run/docker.sock'
+        }
+    }
+
+    environment {
+        IMAGE = "bkkrish007/spotify-devops"
+        EC2_HOST = "ubuntu@13.200.246.186"
+    }
 
     stages {
+
+        stage('Checkout Code') {
+            steps {
+                git 'https://github.com/BK-KRISH/Spotify-clone-devops.git'
+            }
+        }
 
         stage('Install Dependencies') {
             steps {
@@ -17,32 +34,36 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t spotify-clone -f docker/Dockerfile .'
+                sh 'docker build -t $IMAGE:latest -f docker/Dockerfile .'
             }
         }
 
-        stage('Deploy Container') {
+        stage('Push Image to DockerHub') {
             steps {
-                sh '''
-                docker rm -f spotify || true
-                docker ps -aq --filter "publish=8081" | xargs -r docker rm -f
-                docker run -d -p 8081:80 --name spotify spotify-clone
-                '''
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub-creds',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
+                    sh '''
+                    echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+                    docker push $IMAGE:latest
+                    '''
+                }
             }
         }
 
-        stage('Deploy to EC2') {
+        stage('Deploy to AWS EC2') {
             steps {
                 sh '''
-                ssh -o StrictHostKeyChecking=no ubuntu@13.200.246.186 "
-                docker stop spotify || true &&
-                docker rm spotify || true &&
-                docker pull bkkrish007/spotify-devops:latest &&
-                docker run -d -p 8081:80 --name spotify bkkrish007/spotify-devops:latest
+                ssh -o StrictHostKeyChecking=no $EC2_HOST "
+                    docker stop spotify || true &&
+                    docker rm spotify || true &&
+                    docker pull $IMAGE:latest &&
+                    docker run -d -p 8081:80 --name spotify $IMAGE:latest
                 "
                 '''
             }
         }
-
     }
 }
