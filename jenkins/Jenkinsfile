@@ -24,8 +24,8 @@ pipeline {
         stage('Deploy Container') {
             steps {
                 sh '''
-                docker stop spotify || true
-                docker rm spotify || true
+                docker rm -f spotify || true
+                docker ps -aq --filter "publish=8081" | xargs -r docker rm -f
                 docker run -d -p 8081:80 --name spotify spotify-clone
                 '''
             }
