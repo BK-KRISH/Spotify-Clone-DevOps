@@ -36,15 +36,18 @@ pipeline {
             }
         }
 
-        stage('Deploy') {
-            steps {
-                sh '''
-                docker stop spotify || true
-                docker rm spotify || true
-                docker pull $DOCKER_IMAGE
-                docker run -d --name spotify -p 8081:80 $DOCKER_IMAGE
-                '''
+       stage('Deploy to EC2') {
+           steps {
+                sshagent(['ec2-ssh']) {
+                    sh '''
+                    ssh -o StrictHostKeyChecking=no ubuntu@13.235.179.251 "
+                    docker pull bkkrish007/spotify-devops:v1 &&
+                    docker stop spotify || true &&
+                    docker rm spotify || true &&
+                    docker run -d -p 8081:80 --name spotify bkkrish007/spotify-devops:v1
+                    "
+                    '''
+                }
             }
         }
     }
-}
