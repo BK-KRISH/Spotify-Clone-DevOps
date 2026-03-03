@@ -7,12 +7,6 @@ pipeline {
 
     stages {
 
-        stage('Checkout') {
-            steps {
-                git 'https://github.com/BK-KRISH/Spotify-Clone-DevOps.git'
-            }
-        }
-
         stage('Build Docker Image') {
             steps {
                 script {
