@@ -33,16 +33,16 @@ pipeline {
                     '''
                 }
             }
+        }
 
         stage('Deploy Container') {
             steps {
-                    sh '''
-                    docker stop spotify || true
-                    docker rm spotify || true
-                    docker run -d -p 8081:80 --name spotify bkkrish007/spotify-devops:latest
-                    '''
-                }
-            }    
+                sh '''
+                docker stop spotify || true
+                docker rm spotify || true
+                docker run -d -p 8081:80 --name spotify $DOCKER_IMAGE
+                '''
+            }
         }
     }
 }
