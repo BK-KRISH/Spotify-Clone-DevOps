@@ -2,20 +2,13 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = "bkkrish007/spotify-devops:v2"
-        EC2_IP = "13.235.179.251"
+        DOCKER_IMAGE = "harinimuruges/spotify-devops:v2"
+        EC2_IP = "13.238.29.37"
     }
 
     stages {
 
-        stage('Checkout') {
-            steps {
-                git branch: 'main',
-                    url: 'https://github.com/BK-KRISH/Spotify-Clone-DevOps.git'
-            }
-        }
-
-        stage('Build & Push (AMD64)') {
+        stage('Build & Push') {
             steps {
                 withCredentials([usernamePassword(
                     credentialsId: 'dockerhub-creds',
